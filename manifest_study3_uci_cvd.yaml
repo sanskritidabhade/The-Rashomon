@@ -1,0 +1,302 @@
+# =============================================================================
+# STUDY MANIFEST - Study [3]  (P3 requirement FR1)
+# Project : The Rashomon Effect in Cardiovascular Risk Prediction
+# Owner   : Ricardo Andrade (study lead) | Cross-reviewer: TODO
+# Rule    : every "TODO" must be replaced before the manifest is locked.
+# Rule    : never pool this study's outcome with Studies [1] or [2].
+# NOTE    : keys should be aligned with Sanskriti's manifest schema so that the
+#           three study manifests share the same structure.
+# =============================================================================
+
+manifest_version: "0.1"
+manifest_date: "2026-11-09"
+registration_note: >
+  Reproduction criteria (section "reproduction_criteria") are copied verbatim
+  from P3 section 2.3 and were NOT changed after seeing results. This manifest
+  was completed AFTER the first runs, because the author's code and data were
+  outside the repository and had to be inspected first. Result sections are
+  filled from logged runs only.
+
+study:
+  id: S3_UCI_CVD_DIAGNOSIS
+  paper_ref: "[3]"
+  citation: >
+    Hasan, K. S., & Dhrubo, I. S. (2026). Advancing cardiovascular disease
+    diagnosis with an interpretable and responsible AI framework.
+    Scientific Reports, 16, 15452.
+  doi: "10.1038/s41598-026-35451-3"
+  published_online: "2026-04-02"
+
+outcome_and_cohort:
+  outcome: "Presence of heart disease (CVD), binary diagnostic label"
+  target_column: target            # 1 = disease, 0 = no disease
+  task_type: "clinical diagnostic classification (NOT mortality, NOT risk over a time horizon)"
+  population: "UCI Heart Disease data: Cleveland, Hungary, Switzerland, Long Beach VA"
+  statlog_handling: "Statlog rows (272) are exact duplicates of Cleveland rows and are removed"
+  n_rows_unique: 918
+  class_counts_unique: {target_1: 508, target_0: 410}
+  features_used_in_table5_code: [age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope]
+  features_dropped: [ca, thal]     # missing in 3 of the 4 regional subsets
+  stream_audited: >
+    Table 5 (neural-model comparison). In the author's code this stream uses
+    ALL 11 features, not the "clinical" 4-feature subset described in Table 1.
+
+code_and_data_sources:
+  author_repo:
+    url: "https://github.com/SakibHasanSimanto/CVD-AI-Research"
+    commit_hash: 9e10369b833643ddaacd54586e8f73d5046f8455               # git log -1
+    commit_date: Sun Jun 15 15:37:05 2025 +0600
+    contents: "README only. No code, data or requirements file inside the repository."
+  author_code_location: "Google Colab notebooks linked from the README"
+  colab_notebooks_accessed_2026_11_09:
+    - name: "cvd dataset preparation.ipynb"
+      role: "Clustering only (K-Means, agglomerative). Does NOT prepare the dataset."
+      url: "https://colab.research.google.com/drive/1fx3u_yBNG4aVKqZ_3VskwVZXbjuj7sM-"
+    - name: "cvd modeling 1.ipynb"
+      role: "Not reviewed yet. Probably contains the SMOTE step."
+      url: "https://colab.research.google.com/drive/1MNmdesc6JqmOuUXSyotzq_Tak5xXpvro"
+    - name: "cvd modeling 2.ipynb"
+      role: "Not reviewed yet."
+      url: "https://colab.research.google.com/drive/1Zx0GTOdJYghEAIGale2AMWQAHmB1aaRH"
+    - name: "cvd Regional bias and generalizations.ipynb"
+      role: "Not in scope (Table 2 / regional bias)."
+      url: "https://colab.research.google.com/drive/1eQ3kwMdNflD6z9WryG_vYmR705CqribC"
+    - name: "cvd SHAP DiCE.ipynb"
+      role: "Not in scope (interpretability)."
+      url: "https://colab.research.google.com/drive/18tMdCHef42eE_bSUJLB2anWoTwU6kWFZ"
+    - name: "cvd Tabular Neural.ipynb"
+      role: "SOURCE OF TABLE 5 (TabPFN, TabNet, FT-Transformer, BNN)."
+      url: "https://colab.research.google.com/drive/11bDv8obml4qHmCoT4-E0sGvnzQy3r8VV"
+    - name: "cvd casuality.ipynb"
+      role: "CGEVC (causal-guided voting ensemble) and ATE estimates."
+      url: "https://colab.research.google.com/drive/1iKTXCDyvLg-MjmVhYhY8uMvoltykGe0H"
+    - name: "cvd Tabular Neural GC.ipynb"
+      role: >
+        Variant using Gaussian Copula synthetic data. Not described in the paper.
+        Stored outputs show much lower accuracy (about 0.66-0.70). Not audited.
+      url: "https://colab.research.google.com/drive/1NBe0NirCsf-68UjmJXaYqZyu2F2InFx9"
+    - name: "cvd Gender Bias mitigation.ipynb"
+      role: "Applies CTGAN (SDV) to the SMOTE dataset; produces the final CSV."
+      url: "https://colab.research.google.com/drive/17zliIkXw4MlEyH696gB8UzZKju_ohdQg"
+  author_data_drive_folder: https://drive.google.com/drive/folders/1xSxfxY84rhHvndd7LDO5J2aMDncXyqPM     # URL of the Drive folder with the CSVs
+  raw_data_origin:
+    - "Kaggle: Cleveland, 303 rows, 14 columns (processed_cleveland.csv)"
+    - "Kaggle: merged Statlog/Cleveland/Hungary/Switzerland/Long Beach, 1190 rows (heart_statlog_cleveland_hungary_final.csv)"
+    - "Kaggle URLs: https://www.kaggle.com/datasets/aavigan/cleveland-clinic-heart-disease-dataset, https://www.kaggle.com/datasets/sid321axn/heart-statlog-cleveland-hungary-final?resource=download"
+    - "Original source: https://archive.ics.uci.edu/dataset/45/heart+disease"
+  download_date: 2026/11/09
+
+data_lineage:     # file -> file, in the order the author's notebooks consume them
+  - step: raw_kaggle_merged
+    file: heart_statlog_cleveland_hungary_final.csv
+    sha256: 7d7dc50ab0883efba2bd52e6aac4a273407f48fefe2f1e2503f202c82e6b36be
+    rows: 1190
+  - step: raw_kaggle_cleveland
+    file: processed_cleveland.csv
+    sha256: c7769f3d97d2f76bff6712c952191e5959d2a95fad7219a8da7493ad0ee0c2a5
+    rows: 303
+    note: "num has values 0-4 (must be binarised); '?' marks missing ca/thal. Not used in Table 5."
+  - step: deduplicated
+    file: combined_statslogExcluded.csv
+    sha256: a0adaf112f958b31fc8d4f710407d41d95ae777dd4341b54f02a8b97ba3019fd
+    rows: 918
+    class_counts: {target_1: 508, target_0: 410}
+    verification: >
+      Independently regenerated: Kaggle 1190 rows minus 272 exact duplicates is
+      identical (ignoring row order) to the author's file.
+  - step: smote
+    file: combined_statslogExcluded_SMOTE.csv
+    sha256: 943424679e2a0d7a39411ca4361881fa870778bea44a259e2b6e7747a3451e74
+    rows: 1016
+    class_counts: {target_1: 508, target_0: 508}
+    synthetic_rows_approx: 98
+    generating_notebook: "not identified yet (modeling 1 or 2?)"
+  - step: ctgan_sex_balancing
+    file: combined_statslogExcluded_SMOTE_GenderBalancedWithCTGAN.csv
+    sha256: 9dafda6c08e50fddc9453204029339b134c88045413726d27559cc0d2e6e6c39
+    rows: 1542
+    class_counts: {target_1: 916, target_0: 626}
+    sex_counts: {male: 771, female: 771}
+    synthetic_rows_approx: 624      # 40.5 % of the file
+    generating_notebook: "cvd Gender Bias mitigation.ipynb"
+    note: "CTGAN restores sex balance but breaks the class balance SMOTE had achieved."
+
+original_file_names_in_drive: combined_statslogExcluded_SMOTE_GenderBalancedWithCTGAN.csv, combined_statslogExcluded_SMOTE.csv, combined_statslogExcluded.csv     # exact names of the 3 author CSVs as shown in Drive
+
+evaluation_protocol_as_coded_by_authors:
+  split: {function: train_test_split, test_size: 0.2, stratify: target, random_state: 123}
+  n_train: 1233
+  n_test: 309
+  test_class_counts: {target_0: 125, target_1: 184}
+  scaling: "StandardScaler fitted on the FULL dataset before the split (Tabular Neural notebook)"
+  validation_set: none
+  test_set_used_for: [early_stopping, hyperparameter_search_TabNet_Optuna]
+  same_test_rows_across_notebooks: >
+    Verified: the CGEVC split (6 features) and the Tabular Neural split select
+    the same 309 row indices.
+  synthetic_rows_in_test: "yes - SMOTE and CTGAN are applied BEFORE the split"
+
+reproduction_criteria:       # FROZEN - copied from P3 section 2.3
+  full: "all main scores within 0.02 absolute points of published values, matching protocol"
+  partial: "some scores match, or numbers match but a material protocol change limits the claim"
+  not_reproduced: "no main score matches, or evaluation is blocked"
+  pending: "not yet attempted"
+  tolerance_absolute: 0.02
+  tolerance_in_test_rows: "about 6 of 309 rows (one row = 0.0032)"
+  obstacle_categories: [code, data, method, environment, computational]
+
+reported_scores_in_paper:
+  primary_main_score:
+    model: TabPFN
+    metric: accuracy
+    value: 0.90
+    source: "Table 5"
+  secondary_scores:            # accuracy, Table 5
+    TabNet: 0.89
+    FT-Transformer: 0.89
+    BNN: 0.87
+    CGEVC: 0.89
+  author_stored_outputs:       # outputs saved inside the author's notebooks (run dated 2025-04-19)
+    TabPFN: {accuracy: 0.9029, f1: 0.9202}
+    TabNet: {accuracy: 0.8867, f1: 0.9091}
+    FT-Transformer: {accuracy: 0.8900}
+    BNN: {accuracy: 0.8673}
+    CGEVC: {accuracy: 0.8867}
+
+author_environment:
+  run_date: "2025-04-19"
+  python: "3.11"
+  numpy: "1.26.4"
+  optuna: "4.3.0"
+  pinned_versions_provided: false     # all installs are unpinned "pip install"
+
+our_environment:
+  platform: "Google Colab (CPU runtime)"
+  python: "3.13.18"
+  numpy: "2.4.6"
+  pandas: "2.2.3"
+  scikit_learn: "1.6.1"
+  torch: "2.14.1+cpu"
+  pytorch_tabnet: "4.1.0"
+  xgboost: 3.4.1
+  lightgbm: 4.6.0
+  pip_freeze_file: versiones_colab.txt                # commit versiones_colab.txt
+
+runs:
+  - id: R1_TabPFN_current
+    model: TabPFN
+    tabpfn_package: "9.2.0"
+    weights: "tabpfn-v3.5-20260909.safetensors"
+    accuracy: 0.9191
+    n_correct: 284
+    f1_class1: 0.9337
+    delta_vs_paper: 0.0191
+    deterministic: "yes (2 identical runs)"
+    protocol_match: "partial - different model generation than the author's"
+    predictions_file: preds_tabpfn_A1.csv
+    time_minutes: 240
+  - id: R2_TabPFN_v2
+    model: TabPFN
+    tabpfn_package: 2.0.8               # exact version installed for A2
+    weights: 3.5                      # checkpoint file name downloaded
+    accuracy: 0.8997
+    n_correct: 278
+    f1_class1: 0.9178
+    delta_vs_paper: 0.0003
+    delta_vs_author_stored: 0.0032     # one row
+    deterministic: 0.89
+    protocol_match: "yes (same generation as author's v2 checkpoint series)"
+    predictions_file: preds_tabpfn_A2.csv
+    time_minutes: 120
+    todo: "fix the 'model' column of the CSV: it wrongly says v9.2.0 / weights v3.5"
+  - id: R3_TabNet_author_params
+    model: TabNet
+    hyperparameters_source: "final cell of Tabular Neural notebook (hard-coded; Optuna NOT re-run)"
+    accuracy: 0.8900
+    n_correct: 275
+    f1_class1: 0.9066
+    delta_vs_paper: 0.0001
+    delta_vs_author_stored: 0.0033     # one row
+    deterministic: "yes (3 identical runs); probably library default seed=0, not verified in source"
+    predictions_file: preds_tabnet.csv
+    time_minutes: 120
+  - id: R4_CGEVC_author_params
+    model: CGEVC
+    features_used: [exang, slope, fbs, cp, sex, oldpeak]
+    accuracy: 0.8835
+    n_correct: 273
+    precision_class1: 0.8854
+    delta_vs_paper: 0.0065
+    delta_vs_author_stored: 0.0032     # one row
+    predictions_file: preds_cgevc.csv
+    time_minutes: 60
+
+runs_not_attempted:
+  FT-Transformer: "blocked by environment (rtdl requires torch<2)"
+  BNN: "not attempted; 0.03 below the best model, outside the 0.02 similarity rule"
+
+status_proposal:
+  value: "reproduced_with_caveats"
+  decided_by: "PENDING team cross-review"
+  scope: "Evaluation re-run from the author's published augmented CSV; the SMOTE -> CTGAN pipeline was not rebuilt (CTGAN is unseeded, so an identical rebuild is not possible)."
+  caveats:
+    - "Paper (Table 1: 1016 rows, 4 features) does not match its own code (1542 rows, 11 features)."
+    - "Number reproduced does not mean number is valid: leakage (see obstacle log)."
+    - "TabPFN agrees with the paper only for a v2-series model; current weights give +0.019."
+
+obstacle_log:
+  # category follows P3 taxonomy: code | data | method | environment | computational
+  - {id: O1,  category: code,        description: "Repository contains only a README; code lives in Colab notebooks and data in Drive. No commit freezes the code.", time_hours: 0.2 estimated}
+  - {id: O2,  category: environment, description: "No pinned versions; every install is a bare pip install.", time_hours: 0.1 estimated}
+  - {id: O3,  category: environment, description: "rtdl needs torch<2; incompatible with current Colab (Python 3.13, torch 2.14). FT-Transformer not run.", time_hours: 1 estimated}
+  - {id: O4,  category: environment, description: "Current TabPFN requires an account, license acceptance and API token to download weights; author's run needed none.", time_hours: 0.5 estimated}
+  - {id: O5,  category: environment, description: "Unpinned tabpfn installs a newer model generation; accuracy changes from 0.8997 (v2) to 0.9191 (v3.5).", time_hours: 0.1 estimated}
+  - {id: O6,  category: method,      description: "SMOTE and CTGAN are applied before the train/test split; StandardScaler is fitted before the split; about 40 % of the dataset is synthetic and part of it is in the test set.", time_hours: not_applicable}
+  - {id: O7,  category: method,      description: "No validation set. Test rows drive TabNet early stopping and Optuna search (best trial 0.9061 on test).", time_hours: not_applicable}
+  - {id: O8,  category: method,      description: "Paper vs code mismatch: Table 1 says 1016 rows and 4 clinical features; code uses 1542 rows and 11 features.", time_hours: not_applicable}
+  - {id: O9,  category: method,      description: "Final TabNet cell does not replicate the Optuna best trial (batch_size 48 vs 1024, virtual batch 32 vs 128, no scheduler, early stopping on AUC vs accuracy). Result 0.8867 vs 0.9061.", time_hours: not_applicable}
+  - {id: O10, category: method,      description: "CGEVC: ATE and feature selection computed on the full dataset including test rows and the target (leakage). Selection includes oldpeak (ATE 0.0926 < 0.1) and excludes restecg (0.0375); Eq. 7 of the paper describes weighted voting but code uses unweighted soft voting.", time_hours: not_applicable}
+  - {id: O11, category: data,        description: "Notebook that produces the SMOTE file is not identified; CTGAN has no seed, so the final CSV cannot be regenerated identically. The author's CSV is required.", time_hours: 0.2 estimated}
+  - {id: O12, category: code,        description: "'cvd dataset preparation' notebook does not prepare the dataset (clustering only). Paper-to-notebook mapping had to be reconstructed.", time_hours: 0.5 estimated}
+
+deviations_from_author_notebooks:
+  - "CSV path changed from /content/sample_data/ to the actual upload location."
+  - "rtdl import and install commented out (O3)."
+  - "Optuna cells skipped; hyperparameters taken from the author's hard-coded final TabNet cell."
+  - "DoWhy/ATE cells skipped for CGEVC (stored author outputs match the paper's ATE values)."
+  - "SHAP, ROC and feature-importance cells skipped (not part of Table 5)."
+  - "Cells added to save per-row predictions (row_id, y_true, y_pred, proba_1, model, protocol)."
+
+prediction_files:      # used by the comparison runner and the Streamlit app
+  common_columns: [row_id, y_true, y_pred, proba_1, model, protocol]
+  protocol_label: author_split_rs123_leaky
+  files:
+    - {file: preds_tabpfn_A1.csv, sha256: d0bf32d1326a3cc53362c452d99f3d1cbba142a0d5457ccb1de87f6029f51640}
+    - {file: preds_tabpfn_A2.csv, sha256: 7cf6212bac124ac458d7102629a7e1bf7cfe85ea3d3cf8be8267aff8f2c582ee}   # compute AFTER fixing the model label
+    - {file: preds_tabnet.csv,    sha256: 49e7a54de640139e0b33d71f073b0d929dd5325fce71c9b348437c884bd43b46}
+    - {file: preds_cgevc.csv,     sha256: 3aeaa2d904be3f77e6e5dfdff5fd830ba06499a86efe28f8790092b85ad5935a}
+  alignment_check: "All four files share the same 309 row_id and y_true values (verified)."
+
+rashomon_comparison:        # separate from the reproduction audit (P3 section 2.3)
+  status: "preliminary - computed on the leaky author protocol; to be redone in Level C"
+  comparable_models: [TabPFN_v2 (R2), TabNet (R3), CGEVC (R4)]
+  excluded: ["TabPFN current weights (R1): same family as R2, kept as sensitivity analysis only"]
+  similarity_rule_declared: "within 0.02 of the best validation score (accuracy); here applied to test accuracy because no validation set exists"
+  accuracy_range: [0.8835, 0.8997]
+  label_disagreement: {rows: 33, of: 309, rate: 0.107}
+  pairwise_label_disagreement: {TabPFN_vs_TabNet: 23, TabPFN_vs_CGEVC: 15, TabNet_vs_CGEVC: 28}
+  all_three_agree_and_wrong: 17
+  probability_spread_rule: "NOT reported: probabilities are not calibrated and come from different model families"
+  consensus_mean_allowed: false
+  reason: "calibration checks (ECE <= 0.10, Brier vs prevalence baseline) not yet run"
+
+next_steps:
+  - "Level C: split first (train/validation/test); SMOTE/CTGAN, scaler and feature selection fitted on train only; evaluate on real rows only."
+  - "Rebuild the SMOTE -> CTGAN pipeline from the 918-row file (labelled RECONSTRUCTION)."
+  - "Identify the SMOTE notebook (modeling 1/2)."
+  - "Cross-review by another team member; then finalise status."
+
+review:
+  cross_reviewer: TODO
+  review_date: TODO
+  reviewer_reproduced_one_run: TODO     # E6: teammate repeats a run from the README
